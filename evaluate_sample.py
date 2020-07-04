@@ -150,6 +150,17 @@ def main(unused_argv):
     for index in sorted_indices[:20]:
       print(out_predictions[index], out_logits[index], kinetics_classes[index])
 
+    frozen_model_name = "frozen_model.pb"
+    print('\nFreezing and Exporting Model as: %s' % frozen_model_name)
+    frozen_graph = tf.graph_util.convert_variables_to_constants(
+        sess,
+        tf.get_default_graph().as_graph_def(),
+        ["Softmax"]
+    )
+    with tf.io.gfile.GFile(frozen_model_name, "wb") as f:
+      f.write(frozen_graph.SerializeToString())
+    print("%d ops in the final graph." % len(frozen_graph.node))
+
 
 if __name__ == '__main__':
   tf.app.run(main)
